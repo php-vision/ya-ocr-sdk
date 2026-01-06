@@ -2,26 +2,16 @@
 
 declare(strict_types=1);
 
-namespace PhpVision\YandexVision\Dto;
+namespace PhpVision\YandexVision\Ocr\Dto;
 
-final readonly class OperationStatus
+final readonly class OcrResponse
 {
     /**
      * @param array<string, mixed> $payload
      * @param array<string, mixed> $meta
      */
-    public function __construct(private string $operationId, private bool $done, private array $payload, private array $meta = [])
+    public function __construct(private array $payload, private array $meta = [])
     {
-    }
-
-    public function getOperationId(): string
-    {
-        return $this->operationId;
-    }
-
-    public function isDone(): bool
-    {
-        return $this->done;
     }
 
     /**

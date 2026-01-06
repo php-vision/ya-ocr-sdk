@@ -3,7 +3,7 @@
 HTTP client for **Yandex Cloud Vision OCR** (sync + async). Designed as a small, predictable, PSR-friendly Composer library with clear errors, DTOs, and optional concurrency via a runner interface.
 
 <p align="center">
-<a href="https://github.com/php-vision/ya-ocr-sdk/actions"><img src="https://github.com/php-vision/ya-ocr-sdk/actions/workflows/ci-tests.yml/badge.svg" alt="Tests status"></a>
+<a href="https://github.com/php-vision/ya-ocr-sdk/actions"><img src="https://github.com/php-vision/ya-ocr-sdk/actions/workflows/ci-test.yml/badge.svg" alt="Tests status"></a>
 <a href="https://packagist.org/packages/php-vision/ya-ocr-sdk"><img src="https://img.shields.io/packagist/v/php-vision/ya-ocr-sdk.svg" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/php-vision/ya-ocr-sdk"><img src="https://img.shields.io/packagist/l/php-vision/ya-ocr-sdk.svg" alt="License"></a>
 </p>
