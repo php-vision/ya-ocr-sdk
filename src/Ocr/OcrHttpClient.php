@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PhpVision\YandexVision\Ocr;
 
+use PhpVision\YandexVision\Ocr\Request\OcrRequestInterface;
 use PhpVision\YandexVision\Exception\ApiException;
 use PhpVision\YandexVision\Exception\HttpException;
 use PhpVision\YandexVision\Exception\ValidationException;
@@ -23,11 +24,24 @@ final readonly class OcrHttpClient
     }
 
     /**
+     * @return array{0: array<string, mixed>, 1: array<string, mixed>}
+     */
+    public function send(OcrRequestInterface $request): array
+    {
+        return $this->sendJsonRequest(
+            $request->getMethod(),
+            $request->getUrl(),
+            $request->getHeaders(),
+            $request->getBody()
+        );
+    }
+
+    /**
      * @param array<string, string> $headers
      * @param array<string, mixed>|null $body
      * @return array{0: array<string, mixed>, 1: array<string, mixed>}
      */
-    public function sendJsonRequest(string $method, string $url, array $headers, ?array $body): array
+    private function sendJsonRequest(string $method, string $url, array $headers, ?array $body): array
     {
         $request = $this->requestFactory->createRequest($method, $url);
         foreach ($headers as $name => $value) {

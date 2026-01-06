@@ -40,6 +40,8 @@ final class OcrServiceTest extends TestCase
 
         $request = $transport->getLastRequest();
         self::assertNotNull($request);
+        self::assertSame('POST', $request->getMethod());
+        self::assertSame('/ocr/v1/recognizeText', $request->getUri()->getPath());
         self::assertSame('Api-Key test', $request->getHeaderLine('Authorization'));
         self::assertSame('folder-1', $request->getHeaderLine('x-folder-id'));
         self::assertSame('req-override', $request->getHeaderLine('x-request-id'));
@@ -87,6 +89,11 @@ final class OcrServiceTest extends TestCase
 
         self::assertSame('op-1', $handle->getOperationId());
         self::assertSame('req-op', $handle->getRequestId());
+
+        $request = $transport->getLastRequest();
+        self::assertNotNull($request);
+        self::assertSame('POST', $request->getMethod());
+        self::assertSame('/ocr/v1/recognizeTextAsync', $request->getUri()->getPath());
     }
 
     public function testGetOperationRequiresId(): void
@@ -95,6 +102,14 @@ final class OcrServiceTest extends TestCase
 
         $this->expectException(ValidationException::class);
         $service->getOperation('   ');
+    }
+
+    public function testGetRecognitionRequiresId(): void
+    {
+        $service = $this->createService(new FakeTransport());
+
+        $this->expectException(ValidationException::class);
+        $service->getRecognition('   ');
     }
 
     public function testWaitReturnsResponseFromOperation(): void
