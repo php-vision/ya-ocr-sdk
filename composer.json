@@ -1,0 +1,49 @@
+{
+  "name": "php-vision/ya-ocr-sdk",
+  "description": "HTTP client for Yandex Cloud Vision OCR (sync/async)",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "yandex",
+    "cloud",
+    "vision",
+    "ocr",
+    "http-client"
+  ],
+  "require": {
+    "php": "^8.4",
+    "ext-json": "*",
+    "psr/http-client": "^1.0",
+    "psr/http-factory": "^1.0",
+    "psr/http-message": "^2.0",
+    "ext-fileinfo": "*"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3.59",
+    "phpstan/phpstan": "^2.1",
+    "phpunit/phpunit": "^12.5",
+    "rector/rector": "^2.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "PhpVision\\YandexVision\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PhpVision\\YandexVision\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit",
+    "stan": "phpstan analyse",
+    "lint": "php-cs-fixer fix --dry-run --diff",
+    "rector": "rector"
+  },
+  "config": {
+    "sort-packages": true,
+    "optimize-autoloader": true
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
