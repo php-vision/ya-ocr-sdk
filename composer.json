@@ -8,7 +8,9 @@
     "cloud",
     "vision",
     "ocr",
-    "http-client"
+    "http-client",
+    "ocr-text-reader",
+    "ocr-php"
   ],
   "require": {
     "php": "^8.4",
