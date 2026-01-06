@@ -22,18 +22,4 @@ jobs:
       - name: Run tests with coverage
         run: |
           mkdir -p build
-          vendor/bin/phpunit \
-            --coverage-text \
-            --coverage-clover build/coverage.xml
-
-      - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-clover
-          path: build/coverage.xml
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: build/coverage.xml
-          fail_ci_if_error: true
+          vendor/bin/phpunit
