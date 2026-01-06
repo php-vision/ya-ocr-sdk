@@ -26,7 +26,7 @@ HTTP client for **Yandex Cloud Vision OCR** (sync + async). Designed as a small,
 ## Installation
 
 ```bash
-composer require PhpVision/ya-ocr-vision-client
+composer require php-vision/ya-ocr-vision-client
 ```
 
 You must also install a PSR-18 client and PSR-17 factories, for example:
