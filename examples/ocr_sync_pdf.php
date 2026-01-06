@@ -5,6 +5,7 @@ declare(strict_types=1);
 use GuzzleHttp\Client as GuzzleClient;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PhpVision\YandexVision\Auth\ApiKeyCredentialProvider;
+use PhpVision\YandexVision\Ocr\OcrOptions;
 use PhpVision\YandexVision\Transports\HttpTransport;
 use PhpVision\YandexVision\Ocr\OcrService;
 use PhpVision\YandexVision\YandexVisionClient;
@@ -22,8 +23,8 @@ $credentials = new ApiKeyCredentialProvider('YOUR_API_KEY');
 $ocrService = new OcrService($transport, $credentials, $psr17Factory, $psr17Factory);
 $client = new YandexVisionClient($ocrService);
 
-$response = $client->ocr()->recognizeTextFromFile($pdfPath, [
-    // 'folderId' => 'YOUR_FOLDER_ID',
-]);
+$options = OcrOptions::create();
+
+$response = $client->ocr()->recognizeTextFromFile($pdfPath, $options);
 
 var_dump($response->getPayload());

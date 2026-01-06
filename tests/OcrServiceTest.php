@@ -7,6 +7,9 @@ namespace PhpVision\YandexVision\Tests;
 use PhpVision\YandexVision\Exception\ApiException;
 use PhpVision\YandexVision\Exception\TimeoutException;
 use PhpVision\YandexVision\Exception\ValidationException;
+use PhpVision\YandexVision\Ocr\Enum\LanguageCode;
+use PhpVision\YandexVision\Ocr\Enum\OcrModel;
+use PhpVision\YandexVision\Ocr\OcrOptions;
 use PhpVision\YandexVision\Ocr\OcrService;
 use PhpVision\YandexVision\Tests\Support\FakeTransport;
 use PhpVision\YandexVision\Tests\Support\SimpleRequestFactory;
@@ -28,12 +31,12 @@ final class OcrServiceTest extends TestCase
         $service = $this->createService($transport);
 
         $bytes = 'image-bytes';
-        $response = $service->recognizeText($bytes, 'image/png', [
-            'languageCodes' => ['ru', 'en'],
-            'model' => 'page',
-            'folderId' => 'folder-1',
-            'requestId' => 'req-override',
-        ]);
+        $options = OcrOptions::create()
+            ->withLanguageCodes(LanguageCode::RU, LanguageCode::EN)
+            ->withModel(OcrModel::Page)
+            ->withRequestId('req-override');
+
+        $response = $service->recognizeText($bytes, 'image/png', $options);
 
         self::assertSame(['textAnnotation' => ['fullText' => 'ok']], $response->getPayload());
         self::assertSame('req-1', $response->getMeta()['request_id']);
@@ -43,7 +46,6 @@ final class OcrServiceTest extends TestCase
         self::assertSame('POST', $request->getMethod());
         self::assertSame('/ocr/v1/recognizeText', $request->getUri()->getPath());
         self::assertSame('Api-Key test', $request->getHeaderLine('Authorization'));
-        self::assertSame('folder-1', $request->getHeaderLine('x-folder-id'));
         self::assertSame('req-override', $request->getHeaderLine('x-request-id'));
 
         $body = json_decode((string) $request->getBody(), true, 512, JSON_THROW_ON_ERROR);
@@ -63,10 +65,10 @@ final class OcrServiceTest extends TestCase
 
         $file = tempnam(sys_get_temp_dir(), 'ocr');
         self::assertIsString($file);
-        file_put_contents($file, 'pdf-bytes');
+        file_put_contents($file, "%PDF-1.4\n%EOF\n");
 
         try {
-            $service->recognizeTextFromFile($file, ['mime' => 'application/pdf']);
+            $service->recognizeTextFromFile($file);
             $request = $transport->getLastRequest();
             self::assertNotNull($request);
             $body = json_decode((string) $request->getBody(), true, 512, JSON_THROW_ON_ERROR);

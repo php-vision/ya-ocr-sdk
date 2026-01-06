@@ -5,6 +5,8 @@ declare(strict_types=1);
 use GuzzleHttp\Client as GuzzleClient;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PhpVision\YandexVision\Auth\ApiKeyCredentialProvider;
+use PhpVision\YandexVision\Ocr\Enum\LanguageCode;
+use PhpVision\YandexVision\Ocr\OcrOptions;
 use PhpVision\YandexVision\Transports\HttpTransport;
 use PhpVision\YandexVision\Ocr\OcrService;
 use PhpVision\YandexVision\YandexVisionClient;
@@ -22,10 +24,10 @@ $credentials = new ApiKeyCredentialProvider('YOUR_API_KEY');
 $ocrService = new OcrService($transport, $credentials, $psr17Factory, $psr17Factory);
 $client = new YandexVisionClient($ocrService);
 
-$handle = $client->ocr()->startTextRecognitionFromFile($imagePath, [
-    'languageCodes' => ['ru', 'en'],
-    // 'folderId' => 'YOUR_FOLDER_ID',
-]);
+$options = OcrOptions::create()
+    ->withLanguageCodes(LanguageCode::RU, LanguageCode::EN);
+
+$handle = $client->ocr()->startTextRecognitionFromFile($imagePath, $options);
 
 $result = $client->ocr()->wait($handle->getOperationId(), 60);
 

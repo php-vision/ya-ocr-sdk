@@ -40,7 +40,7 @@ composer require guzzlehttp/guzzle nyholm/psr7
 Two options:
 
 - **IAM Token**  
-  Use `Authorization: Bearer <IAM_TOKEN>` and pass `folderId` in request options.
+  Use `Authorization: Bearer <IAM_TOKEN>`.
 - **API Key**  
   Use `Authorization: Api-Key <API_KEY>` (no `folderId` header).
 
@@ -56,6 +56,8 @@ declare(strict_types=1);
 use GuzzleHttp\Client as GuzzleClient;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PhpVision\YandexVision\Auth\ApiKeyCredentialProvider;
+use PhpVision\YandexVision\Ocr\Enum\LanguageCode;
+use PhpVision\YandexVision\Ocr\OcrOptions;
 use PhpVision\YandexVision\Ocr\OcrService;
 use PhpVision\YandexVision\Transports\HttpTransport;
 use PhpVision\YandexVision\YandexVisionClient;
@@ -72,9 +74,8 @@ $ocr = new OcrService($transport, $credentials, $psr17Factory, $psr17Factory);
 $client = new YandexVisionClient($ocr);
 
 $bytes = file_get_contents(__DIR__ . '/image.png');
-$response = $client->ocr()->recognizeText($bytes, 'image/png', [
-    'languageCodes' => ['ru', 'en'],
-]);
+$options = OcrOptions::create()->withLanguageCodes(LanguageCode::RU, LanguageCode::EN);
+$response = $client->ocr()->recognizeText($bytes, 'image/png', $options);
 
 var_dump($response->getPayload());
 ```
@@ -112,11 +113,10 @@ var_dump($result->getPayload());
 
 ## Options
 
-Every OCR call accepts an `$options` array:
+Every OCR call accepts an `OcrOptions` object:
 
-- `languageCodes` (array of ISO 639-1 codes)
-- `model` (string, optional)
-- `folderId` (string, only for IAM token auth)
+- `languageCodes` (array of `LanguageCode` enums)
+- `model` (`OcrModel` enum, default is `page`)
 - `requestId` (string, forwarded as `x-request-id`)
 
 ## Concurrency (waitMany)

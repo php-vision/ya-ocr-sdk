@@ -35,10 +35,7 @@ final readonly class OcrService
         $this->httpClient = new OcrHttpClient($transport, $requestFactory, $streamFactory);
     }
 
-    /**
-     * @param array<string, mixed> $options
-     */
-    public function recognizeText(string $bytes, string $mime, array $options = []): OcrResponse
+    public function recognizeText(string $bytes, string $mime, ?OcrOptions $options = null): OcrResponse
     {
         $payload = $this->requestBuilder->buildRecognizePayload($bytes, $mime, $options);
         $headers = $this->requestBuilder->buildHeaders($options, true);
@@ -48,20 +45,14 @@ final readonly class OcrService
         return new OcrResponse($data, $meta);
     }
 
-    /**
-     * @param array<string, mixed> $options
-     */
-    public function recognizeTextFromFile(string $path, array $options = []): OcrResponse
+    public function recognizeTextFromFile(string $path, ?OcrOptions $options = null): OcrResponse
     {
         [$bytes, $mime] = $this->requestBuilder->readFilePayload($path, $options);
 
         return $this->recognizeText($bytes, $mime, $options);
     }
 
-    /**
-     * @param array<string, mixed> $options
-     */
-    public function startTextRecognition(string $bytes, string $mime, array $options = []): OperationHandle
+    public function startTextRecognition(string $bytes, string $mime, ?OcrOptions $options = null): OperationHandle
     {
         $payload = $this->requestBuilder->buildRecognizePayload($bytes, $mime, $options);
         $headers = $this->requestBuilder->buildHeaders($options, true);
@@ -76,10 +67,7 @@ final readonly class OcrService
         return new OperationHandle($operationId, $meta['request_id'] ?? null);
     }
 
-    /**
-     * @param array<string, mixed> $options
-     */
-    public function startTextRecognitionFromFile(string $path, array $options = []): OperationHandle
+    public function startTextRecognitionFromFile(string $path, ?OcrOptions $options = null): OperationHandle
     {
         [$bytes, $mime] = $this->requestBuilder->readFilePayload($path, $options);
 
@@ -88,7 +76,7 @@ final readonly class OcrService
 
     public function getOperation(string $operationId): OperationStatus
     {
-        $headers = $this->requestBuilder->buildHeaders([], false);
+        $headers = $this->requestBuilder->buildHeaders(null, false);
         $request = new OperationRequest($operationId, $headers);
 
         [$data, $meta] = $this->httpClient->send($request);
@@ -98,7 +86,7 @@ final readonly class OcrService
 
     public function getRecognition(string $operationId): OcrResponse
     {
-        $headers = $this->requestBuilder->buildHeaders([], false);
+        $headers = $this->requestBuilder->buildHeaders(null, false);
         $request = new RecognitionRequest($operationId, $headers);
 
         [$data, $meta] = $this->httpClient->send($request);

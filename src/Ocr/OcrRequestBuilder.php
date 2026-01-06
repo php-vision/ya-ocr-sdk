@@ -6,6 +6,7 @@ namespace PhpVision\YandexVision\Ocr;
 
 use PhpVision\YandexVision\Auth\CredentialProviderInterface;
 use PhpVision\YandexVision\Exception\ValidationException;
+use PhpVision\YandexVision\Ocr\Enum\LanguageCode;
 
 final readonly class OcrRequestBuilder
 {
@@ -14,39 +15,35 @@ final readonly class OcrRequestBuilder
     }
 
     /**
-     * @param array<string, mixed> $options
      * @return array<string, mixed>
      */
-    public function buildRecognizePayload(string $bytes, string $mime, array $options): array
+    public function buildRecognizePayload(string $bytes, string $mime, ?OcrOptions $options): array
     {
         $payload = [
             'content' => base64_encode($bytes),
             'mimeType' => $mime,
         ];
 
-        if (isset($options['languageCodes'])) {
-            $languageCodes = $options['languageCodes'];
-            if (!is_array($languageCodes)) {
-                throw new ValidationException('languageCodes must be an array of strings.');
-            }
-            $payload['languageCodes'] = array_values($languageCodes);
+        $languageCodes = $options?->getLanguageCodes() ?? [];
+        if ($languageCodes !== []) {
+            $payload['languageCodes'] = array_map(
+                static fn (LanguageCode $code): string => $code->value,
+                $languageCodes
+            );
         }
 
-        if (isset($options['model'])) {
-            if (!is_string($options['model']) || $options['model'] === '') {
-                throw new ValidationException('model must be a non-empty string.');
-            }
-            $payload['model'] = $options['model'];
+        $model = $options?->getModel();
+        if ($model instanceof \PhpVision\YandexVision\Ocr\Enum\OcrModel) {
+            $payload['model'] = $model->value;
         }
 
         return $payload;
     }
 
     /**
-     * @param array<string, mixed> $options
      * @return array{0: string, 1: string}
      */
-    public function readFilePayload(string $path, array $options): array
+    public function readFilePayload(string $path, ?OcrOptions $options): array
     {
         if (!is_file($path) || !is_readable($path)) {
             throw new ValidationException('File is not readable: ' . $path);
@@ -57,8 +54,7 @@ final readonly class OcrRequestBuilder
             throw new ValidationException('Unable to read file: ' . $path);
         }
 
-        $mime = $options['mimeType'] ?? $options['mime'] ?? '';
-        $mime = is_string($mime) ? $mime : '';
+        $mime = $options?->getMimeType() ?? '';
         if ($mime === '') {
             $finfo = new \finfo(FILEINFO_MIME_TYPE);
             $mime = $finfo->file($path) ?: '';
@@ -72,10 +68,9 @@ final readonly class OcrRequestBuilder
     }
 
     /**
-     * @param array<string, mixed> $options
      * @return array<string, string>
      */
-    public function buildHeaders(array $options, bool $withContentType): array
+    public function buildHeaders(?OcrOptions $options, bool $withContentType): array
     {
         $headers = [
             'Authorization' => $this->credentials->getAuthorizationHeader(),
@@ -85,13 +80,13 @@ final readonly class OcrRequestBuilder
             $headers['Content-Type'] = 'application/json';
         }
 
-        $folderId = $options['folderId'] ?? null;
-        if (is_string($folderId) && $folderId !== '') {
+        $folderId = $options?->getFolderId();
+        if ($folderId !== null) {
             $headers['x-folder-id'] = $folderId;
         }
 
-        $requestId = $options['requestId'] ?? null;
-        if (is_string($requestId) && $requestId !== '') {
+        $requestId = $options?->getRequestId();
+        if ($requestId !== null) {
             $headers['x-request-id'] = $requestId;
         }
 
