@@ -53,19 +53,9 @@ final readonly class OcrOptions
         return new self($this->languageCodes, $model, $this->folderId, $this->requestId, $this->mimeType);
     }
 
-    public function withoutModel(): self
-    {
-        return new self($this->languageCodes, null, $this->folderId, $this->requestId, $this->mimeType);
-    }
-
     public function withFolderId(string $folderId): self
     {
         return new self($this->languageCodes, $this->model, $folderId, $this->requestId, $this->mimeType);
-    }
-
-    public function withoutFolderId(): self
-    {
-        return new self($this->languageCodes, $this->model, null, $this->requestId, $this->mimeType);
     }
 
     public function withRequestId(string $requestId): self
@@ -73,19 +63,9 @@ final readonly class OcrOptions
         return new self($this->languageCodes, $this->model, $this->folderId, $requestId, $this->mimeType);
     }
 
-    public function withoutRequestId(): self
-    {
-        return new self($this->languageCodes, $this->model, $this->folderId, null, $this->mimeType);
-    }
-
     public function withMimeType(string $mimeType): self
     {
         return new self($this->languageCodes, $this->model, $this->folderId, $this->requestId, $mimeType);
-    }
-
-    public function withoutMimeType(): self
-    {
-        return new self($this->languageCodes, $this->model, $this->folderId, $this->requestId, null);
     }
 
     /**
