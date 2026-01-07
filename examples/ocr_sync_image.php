@@ -9,7 +9,6 @@ use PhpVision\YandexVision\Ocr\Enum\LanguageCode;
 use PhpVision\YandexVision\Ocr\OcrOptions;
 use PhpVision\YandexVision\Transports\HttpTransport;
 use PhpVision\YandexVision\Ocr\OcrService;
-use PhpVision\YandexVision\YandexVisionClient;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -22,11 +21,10 @@ $transport = new HttpTransport($httpClient);
 $credentials = new ApiKeyCredentialProvider('YOUR_API_KEY');
 
 $ocrService = new OcrService($transport, $credentials, $psr17Factory, $psr17Factory);
-$client = new YandexVisionClient($ocrService);
 
 $options = OcrOptions::create()
     ->withLanguageCodes(LanguageCode::RU, LanguageCode::EN);
 
-$response = $client->ocr()->recognizeTextFromFile($imagePath, $options);
+$response = $ocrService->recognizeTextFromFile($imagePath, $options);
 
 var_dump($response->getPayload());

@@ -60,7 +60,6 @@ use PhpVision\YandexVision\Ocr\Enum\LanguageCode;
 use PhpVision\YandexVision\Ocr\OcrOptions;
 use PhpVision\YandexVision\Ocr\OcrService;
 use PhpVision\YandexVision\Transports\HttpTransport;
-use PhpVision\YandexVision\YandexVisionClient;
 
 require __DIR__ . '/vendor/autoload.php';
 
@@ -71,11 +70,10 @@ $transport = new HttpTransport($httpClient);
 $credentials = new ApiKeyCredentialProvider('YOUR_API_KEY');
 
 $ocr = new OcrService($transport, $credentials, $psr17Factory, $psr17Factory);
-$client = new YandexVisionClient($ocr);
 
 $bytes = file_get_contents(__DIR__ . '/image.png');
 $options = OcrOptions::create()->withLanguageCodes(LanguageCode::RU, LanguageCode::EN);
-$response = $client->ocr()->recognizeText($bytes, 'image/png', $options);
+$response = $ocr->recognizeText($bytes, 'image/png', $options);
 
 var_dump($response->getPayload());
 ```
@@ -92,7 +90,6 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use PhpVision\YandexVision\Auth\ApiKeyCredentialProvider;
 use PhpVision\YandexVision\Ocr\OcrService;
 use PhpVision\YandexVision\Transports\HttpTransport;
-use PhpVision\YandexVision\YandexVisionClient;
 
 require __DIR__ . '/vendor/autoload.php';
 
@@ -103,10 +100,9 @@ $transport = new HttpTransport($httpClient);
 $credentials = new ApiKeyCredentialProvider('YOUR_API_KEY');
 
 $ocr = new OcrService($transport, $credentials, $psr17Factory, $psr17Factory);
-$client = new YandexVisionClient($ocr);
 
-$handle = $client->ocr()->startTextRecognitionFromFile(__DIR__ . '/image.png');
-$result = $client->ocr()->wait($handle->getOperationId(), 60);
+$handle = $ocr->startTextRecognitionFromFile(__DIR__ . '/image.png');
+$result = $ocr->wait($handle->getOperationId(), 60);
 
 var_dump($result->getPayload());
 ```
@@ -124,7 +120,7 @@ Every OCR call accepts an `OcrOptions` object:
 `waitMany()` uses a runner to execute waits. Default is sequential:
 
 ```php
-$results = $client->ocr()->waitMany(['op-1', 'op-2'], 60);
+$results = $ocr->waitMany(['op-1', 'op-2'], 60);
 ```
 
 You can provide a custom runner that performs concurrent execution.
