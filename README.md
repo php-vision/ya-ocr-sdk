@@ -125,6 +125,16 @@ $results = $ocr->waitMany(['op-1', 'op-2'], 60);
 
 You can provide a custom runner that performs concurrent execution.
 
+## Multi-page Documents
+
+For some multi-page OCR responses, the API may return NDJSON/JSONL (one JSON object per line, one line per page).  
+The client parses this automatically and returns:
+
+```php
+$payload = $response->getPayload();
+$pages = $payload['pages']; // array of page objects in API order
+```
+
 ## Error Handling
 
 Exceptions are thrown for common failures:

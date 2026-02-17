@@ -92,17 +92,71 @@ final readonly class OcrHttpClient
             return [[], $meta];
         }
 
-        try {
-            $data = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
-        } catch (\JsonException $exception) {
-            throw new ValidationException('Unable to decode JSON response: ' . $exception->getMessage());
-        }
-
-        if (!is_array($data)) {
-            throw new ValidationException('Unexpected JSON response payload.');
+        [$data, $payloadFormat] = $this->decodePayload($body);
+        if ($payloadFormat !== null) {
+            $meta['payload_format'] = $payloadFormat;
         }
 
         return [$data, $meta];
+    }
+
+    /**
+     * @return array{0: array<string, mixed>, 1: ?string}
+     */
+    private function decodePayload(string $body): array
+    {
+        try {
+            $data = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+            if (!is_array($data)) {
+                throw new ValidationException('Unexpected JSON response payload.');
+            }
+
+            return [$data, null];
+        } catch (\JsonException $exception) {
+            $pages = $this->decodeNdjsonPayload($body);
+            if ($pages !== null) {
+                return [['pages' => $pages], 'ndjson'];
+            }
+
+            throw new ValidationException('Unable to decode JSON response: ' . $exception->getMessage());
+        }
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>|null
+     */
+    private function decodeNdjsonPayload(string $body): ?array
+    {
+        $lines = preg_split('/\R/u', $body);
+        if ($lines === false) {
+            return null;
+        }
+
+        $pages = [];
+        foreach ($lines as $lineNumber => $line) {
+            $line = trim($line);
+            if ($line === '') {
+                continue;
+            }
+
+            try {
+                $decoded = json_decode($line, true, 512, JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                return null;
+            }
+
+            if (!is_array($decoded)) {
+                throw new ValidationException('Unexpected NDJSON payload on line ' . ($lineNumber + 1) . '.');
+            }
+
+            $pages[] = $decoded;
+        }
+
+        if ($pages === []) {
+            return null;
+        }
+
+        return $pages;
     }
 
     private function truncateBody(string $body, int $limit = 1000): string
