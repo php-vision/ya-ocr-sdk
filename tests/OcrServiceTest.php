@@ -148,6 +148,52 @@ final class OcrServiceTest extends TestCase
         self::assertSame(['textAnnotation' => ['fullText' => 'async']], $response->getPayload());
     }
 
+    public function testGetRecognitionParsesNdjsonPages(): void
+    {
+        $body = implode("\n", [
+            json_encode(['result' => ['textAnnotation' => ['fullText' => 'page-0']], 'page' => '0'], JSON_THROW_ON_ERROR),
+            json_encode(['result' => ['textAnnotation' => ['fullText' => 'page-1']], 'page' => '1'], JSON_THROW_ON_ERROR),
+        ]);
+
+        $transport = new FakeTransport([
+            new SimpleResponse(200, $body, ['x-request-id' => 'req-pages']),
+        ]);
+
+        $service = $this->createService($transport);
+        $response = $service->getRecognition('op-1');
+
+        self::assertSame(
+            [
+                ['result' => ['textAnnotation' => ['fullText' => 'page-0']], 'page' => '0'],
+                ['result' => ['textAnnotation' => ['fullText' => 'page-1']], 'page' => '1'],
+            ],
+            $response->getPayload()['pages'] ?? null
+        );
+        self::assertSame('ndjson', $response->getMeta()['payload_format'] ?? null);
+    }
+
+    public function testWaitFallbackParsesNdjsonPages(): void
+    {
+        $body = implode("\n", [
+            json_encode(['result' => ['textAnnotation' => ['fullText' => 'page-0']], 'page' => '0'], JSON_THROW_ON_ERROR),
+            json_encode(['result' => ['textAnnotation' => ['fullText' => 'page-1']], 'page' => '1'], JSON_THROW_ON_ERROR),
+        ]);
+
+        $transport = new FakeTransport([
+            new SimpleResponse(200, json_encode([
+                'id' => 'op-1',
+                'done' => true,
+            ], JSON_THROW_ON_ERROR)),
+            new SimpleResponse(200, $body),
+        ]);
+
+        $service = $this->createService($transport);
+        $response = $service->wait('op-1', 5);
+
+        self::assertSame('page-0', $response->getPayload()['pages'][0]['result']['textAnnotation']['fullText'] ?? null);
+        self::assertSame('page-1', $response->getPayload()['pages'][1]['result']['textAnnotation']['fullText'] ?? null);
+    }
+
     public function testWaitThrowsOnApiError(): void
     {
         $transport = new FakeTransport([
